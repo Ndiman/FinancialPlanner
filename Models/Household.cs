@@ -11,17 +11,17 @@ namespace FinancialPlanner.Models
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public virtual List<Account> Accounts { get; set; }
-        public virtual List<Budget> Budgets { get; set; }
-        public virtual List<ApplicationUser> Users { get; set; }
-        public virtual List<Invitation> Invitations { get; set; }
+        public virtual ICollection<Account> Accounts { get; set; }
+        public virtual ICollection<Budget> Budgets { get; set; }
+        public virtual ICollection<ApplicationUser> Users { get; set; }
+        public virtual ICollection<Invitation> Invitations { get; set; }
 
         public Household()
         {
-            this.Accounts = new List<Account>();
-            this.Budgets = new List<Budget>();
-            this.Users = new List<ApplicationUser>();
-            this.Invitations = new List<Invitation>();
+            this.Accounts = new HashSet<Account>();
+            this.Budgets = new HashSet<Budget>();
+            this.Users = new HashSet<ApplicationUser>();
+            this.Invitations = new HashSet<Invitation>();
         }
     }
 }

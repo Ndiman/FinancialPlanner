@@ -15,11 +15,11 @@ namespace FinancialPlanner.Models
         public string Zip { get; set; }
         public string Phone { get; set; }
 
-        public virtual List<Account> Accounts { get; set; }
+        public virtual ICollection<Account> Accounts { get; set; }
 
         public Bank()
         {
-            this.Accounts = new List<Account>();
+            this.Accounts = new HashSet<Account>();
         }
     }
 }

@@ -46,5 +46,6 @@ namespace FinancialPlanner.Models
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<BudgetItem> BudgetItems { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
+        
     }
 }

@@ -11,11 +11,11 @@ namespace FinancialPlanner.Models
         public string Type { get; set; }
         public string Description { get; set; }
 
-        public List<Account> Accounts { get; set; }
+        public ICollection<Account> Accounts { get; set; }
 
         public AccountType()
         {
-            this.Accounts = new List<Account>();
+            this.Accounts = new HashSet<Account>();
         }
     }
 }

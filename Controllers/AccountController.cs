@@ -9,6 +9,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using FinancialPlanner.Models;
+using System.Web.Helpers;
+using System.IO;
 
 namespace FinancialPlanner.Controllers
 {
@@ -79,6 +81,8 @@ namespace FinancialPlanner.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    if (returnUrl == null)
+                        return RedirectToAction("Index", "Home");
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");
@@ -147,11 +151,44 @@ namespace FinancialPlanner.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterViewModel model)
+        public async Task<ActionResult> Register(RegisterViewModel model, HttpPostedFileBase file)
         {
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                model.AvatarPath = "/Avatars/default.png";
+
+                var image = WebImage.GetImageFromRequest();
+
+                if (image != null)
+                {
+                    var width = image.Width;
+                    var height = image.Height;
+                    if (width > height)
+                    {
+                        var leftRightCrop = (width - height) / 2;
+                        image.Crop(0, leftRightCrop, 0, leftRightCrop);
+                    }
+                    else if (height > width)
+                    {
+                        var topBottomCrop = (height - width) / 2;
+                        image.Crop(topBottomCrop, 0, topBottomCrop, 0);
+                    }
+
+                    var filename = Path.GetFileName(image.FileName).Replace(' ', '_');
+                    image.Save(Path.Combine(Server.MapPath("../Avatars/"), filename));
+                    filename = Path.Combine("~/Avatars/" + filename);
+
+                    model.AvatarPath = Url.Content(filename);
+                }
+
+                var user = new ApplicationUser {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    DisplayName = model.DisplayName,
+                    AvatarPath = model.AvatarPath};
+
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -203,7 +240,7 @@ namespace FinancialPlanner.Controllers
             if (ModelState.IsValid)
             {
                 var user = await UserManager.FindByNameAsync(model.Email);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                if (user == null /*|| !(await UserManager.IsEmailConfirmedAsync(user.Id))*/)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
@@ -211,10 +248,10 @@ namespace FinancialPlanner.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
+                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // If we got this far, something failed, redisplay form

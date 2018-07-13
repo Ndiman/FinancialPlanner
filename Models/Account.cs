@@ -22,11 +22,11 @@ namespace FinancialPlanner.Models
         public virtual AccountType Type { get; set; }
         public virtual Bank Bank { get; set; }
 
-        public virtual List<Transaction> Transactions { get; set; }
+        public virtual ICollection<Transaction> Transactions { get; set; }
 
         public Account()
         {
-            this.Transactions = new List<Transaction>();
+            this.Transactions = new HashSet<Transaction>();
         }
     }
 }

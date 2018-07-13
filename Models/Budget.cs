@@ -17,11 +17,11 @@ namespace FinancialPlanner.Models
 
         public virtual Household Household { get; set; }
 
-        public virtual List<BudgetItem> BudgetItems { get; set; }
+        public virtual ICollection<BudgetItem> BudgetItems { get; set; }
 
         public Budget()
         {
-            this.BudgetItems = new List<BudgetItem>();
+            this.BudgetItems = new HashSet<BudgetItem>();
         }
 
     }

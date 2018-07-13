@@ -15,5 +15,6 @@ namespace FinancialPlanner.Models
         public string Code { get; set; }
         public int LifeSpan { get; set; }
         public bool Accepted { get; set; }
+        public bool Expired { get; set; }
     }
 }
