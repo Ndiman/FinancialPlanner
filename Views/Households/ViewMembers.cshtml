@@ -1,0 +1,33 @@
+﻿@using FinancialPlanner.Helpers;
+@using FinancialPlanner.Models
+@using Microsoft.AspNet.Identity;
+@{
+    var db = new ApplicationDbContext();
+    var roleHelper = new UserRolesHelper();
+}
+
+<h2>Household Members</h2>
+
+<div class="container-fluid">
+    <div class="row">
+        @foreach (var member in Model)
+        {
+            //Setup a card layout for my house members
+            var role = roleHelper.IsUserInRole(member.Id, "HOH");
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box" id="profileCard">
+                <div class="image">
+                    <img src="@Url.Content(member.AvatarPath)" class="media-object" style="width:80px">
+                </div>
+                <div class="content">
+                    <h4>@member.FirstName @member.LastName</h4>
+                    @if (role == true)
+                    {
+                        <div class="text">Head of Household</div>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>

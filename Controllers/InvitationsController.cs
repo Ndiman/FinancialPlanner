@@ -4,15 +4,19 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using FinancialPlanner.Helpers;
 using FinancialPlanner.Models;
+using Microsoft.AspNet.Identity;
 
 namespace FinancialPlanner.Controllers
 {
     public class InvitationsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private UserRolesHelper roleHelper = new UserRolesHelper();
 
         // GET: Invitations
         public ActionResult Index()
@@ -36,8 +40,9 @@ namespace FinancialPlanner.Controllers
         }
 
         // GET: Invitations/Create
-        public ActionResult Create()
+        public ActionResult Create(int houseId)
         {
+            ViewBag.HouseholdId = houseId;
             return View();
         }
 
@@ -46,16 +51,74 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,HouseholdId,Created,Email,Body,Code,LifeSpan,Accepted")] Invitation invitation)
+        public async Task<ActionResult> Create([Bind(Include = "HouseholdId,Email,Body,LifeSpan")] Invitation invitation)
         {
             if (ModelState.IsValid)
             {
+                invitation.SenderId = User.Identity.GetUserId();
+                invitation.LifeSpan = 30;
+                invitation.Created = DateTime.Now;
+                invitation.Code = Guid.NewGuid().ToString();
+
                 db.Invitations.Add(invitation);
                 db.SaveChanges();
-                return RedirectToAction("Index");
-            }
 
-            return View(invitation);
+                //email
+                var callbackUrl = Url.Action("Register", "Account", new { email = invitation.Email, code = invitation.Code }, protocol: Request.Url.Scheme);
+                var houseName = db.Households.Find(invitation.HouseholdId).Name;
+                var senderFName = db.Users.Find(invitation.SenderId).FirstName;
+                var senderLName = db.Users.Find(invitation.SenderId).LastName;
+                //var senderName = db.Users.Find(invitation.)
+                var email = new IdentityMessage()
+                {
+                    Subject = string.Format(senderFName + " " + senderLName + " " + "has invited you to join their Household on Dandelion | Financial Planner"),
+                    Body = invitation.Body + "<br /> Click <a href=\"" + callbackUrl + "\">this link</a> to accept the invitation",
+                    Destination = invitation.Email
+                };
+
+                var svc = new EmailService();
+                await svc.SendAsync(email);
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                ViewBag.HouseholdId = invitation.HouseholdId;
+
+                var message = string.Join(" | ", ModelState.Values
+                                                .SelectMany(v => v.Errors)
+                                                .Select(e => e.ErrorMessage));
+
+                ModelState.AddModelError("", message);
+                return View(invitation);
+            }
+            
+        }
+
+        [Authorize]
+        public ActionResult Join()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Join(string email, string code)
+        {
+            var userId = User.Identity.GetUserId();
+
+            var invite = db.Invitations.FirstOrDefault(i => i.Email == email && i.Code == code);
+            if(invite != null)
+            {
+                invite.Accepted = true;
+                db.SaveChanges();
+
+                var user = db.Users.Find(userId);
+                user.HouseholdId = invite.HouseholdId;
+                db.SaveChanges();
+
+                roleHelper.AddUserToRole(userId, "Member");
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Invitations/Edit/5

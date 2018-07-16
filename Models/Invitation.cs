@@ -16,5 +16,8 @@ namespace FinancialPlanner.Models
         public int LifeSpan { get; set; }
         public bool Accepted { get; set; }
         public bool Expired { get; set; }
+        public string SenderId { get; set; }
+
+        public virtual ApplicationUser Sender { get; set; }
     }
 }

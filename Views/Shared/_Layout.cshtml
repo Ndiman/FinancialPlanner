@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNet.Identity;
 @using FinancialPlanner.Models;
+@using FinancialPlanner.Helpers;
 
 <!DOCTYPE html>
 <html>
@@ -28,8 +29,9 @@
     <link href="~/Helpers/MyStyles.css" rel="stylesheet" />
 </head>
 <body class="theme-green">
-    @{ 
+    @{
         var db = new ApplicationDbContext();
+        var roleHelper = new UserRolesHelper();
         var userId = User.Identity.GetUserId();
     }
     <!-- Page Loader -->
@@ -148,10 +150,10 @@
         <aside id="leftsidebar" class="sidebar">
             <!-- User Info -->
             <div class="user-info">
-                @{ 
+                @{
                     var user = new ApplicationUser
                     {
-                        FirstName = "Welcome", //WebConfigurationManager.AppSettings["GuestName"], in web config <add key="GuestName" value "Welcome" />
+                        FirstName = "Welcome",
                         LastName = "",
                         Email = "Join Dandelion Now",
                         AvatarPath = "/Avatars/default.png"
@@ -163,28 +165,28 @@
                     }
                 }
                 <div class="image" id="avatar-pic">
-                        <img src="@user.AvatarPath" width="48" height="48" alt="User" />
+                    <img src="@user.AvatarPath" width="50" height="50" alt="User" />
                 </div>
                 <div class="info-container">
                     <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profile-name">@user.FirstName @user.LastName</div>
                     <div class="email" id="profile-email">@user.Email</div>
                     @if (User.Identity.IsAuthenticated)
                     {
-                    <div class="btn-group user-helper-dropdown">
-                        <i class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">keyboard_arrow_down</i>
-                        <ul class="dropdown-menu pull-right">
-                            <li><a href="@Url.Action("Index", "Manage")"><i class="material-icons">person</i>Profile</a></li>
-                            <li role="seperator" class="divider"></li>
-                            <li>
-                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <i class="material-icons">input</i><input type="submit" class="btn btn-link" value="Sign Out"/>
-                                }
-                            </li>
-                            
-                        </ul>
-                    </div>
+                        <div class="btn-group user-helper-dropdown">
+                            <i class="material-icons" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="arrowDown">keyboard_arrow_down</i>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="@Url.Action("UpdateUserProfile", "Manage")"><i class="material-icons">person</i>Update Profile</a></li>
+                                <li><a href="@Url.Action("ChangePassword", "Manage")"><i class="material-icons">lock</i>Change Password</a></li>
+                                <li role="seperator" class="divider"></li>
+                                <li>
+                                    @using (Html.BeginForm("LogOff", "Account", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <i class="material-icons">input</i><input type="submit" class="btn btn-link" value="Sign Out" />
+                                    }
+                                </li>
+                            </ul>
+                        </div>
                     }
                 </div>
             </div>
@@ -193,57 +195,156 @@
             <div class="menu">
                 <ul class="list">
                     <li class="header">MAIN NAVIGATION</li>
+                    @{
+                        var memberCnt = db.Users.Where(u => u.HouseholdId == user.HouseholdId).Count();
+                    }
                     @if (!User.Identity.IsAuthenticated)
                     {
-                        <li class="active">
+                        <li>
                             <a href="@Url.Action("Register", "Account")">
                                 <i class="material-icons">lock</i>
                                 <span>Register</span>
                             </a>
                         </li>
-                        <li class="active">
+                        <li>
                             <a href="@Url.Action("Login", "Account")">
                                 <i class="material-icons">launch</i>
                                 <span>Login</span>
                             </a>
                         </li>
                     }
+                    else
+                    {
+                        var role = roleHelper.ListUserRoles(userId).FirstOrDefault();
+                        if (role == "Admin")
+                        {
+                            <li>Super Cool Admin Stuff</li>
+                        }
+
+                        if (role == "HOH")
+                        {
+                            <li>
+                                <a href="@Url.Action("Create", "Invitations", new { houseId = user.HouseholdId })">
+                                    <i class="material-icons">send</i>
+                                    <span>Invite a Member</span>
+                                </a>
+                            </li>
+
+                            if (memberCnt == 1)
+                            {
+                                <li>
+                                    <a href="@Url.Action("Leave", "Households", new { houseId = user.HouseholdId })">
+                                        <i class="material-icons">exit_to_app</i>
+                                        <span>Leave Household</span>
+                                    </a>
+                                </li>
+                            }
+                            @*else
+                            {
+                                <li>
+                                    <a href="@Url.Action("newHOH", "Households", new { houseId = user.HouseholdId })">
+                                        <i class="material-icons">exit_to_app</i>
+                                        <span>Leave Household</span>
+                                    </a>
+                                </li>
+                            }*@
+
+                        }
+
+                        if (role == "HOH" || role == "Member")
+                        {
+                            if (role == "Member")
+                            {
+                                <li>
+                                    <a href="@Url.Action("Leave", "Households", new { houseId = user.HouseholdId })">
+                                        <i class="material-icons">exit_to_app</i>
+                                        <span>Leave Household</span>
+                                    </a>
+                                </li>
+                            }
+
+                            <li>
+                                <a href="@Url.Action("ViewMembers", "Households", new { houseId = user.HouseholdId })">
+                                    <i class="material-icons">supervisor_account</i>
+                                    <span>View Household</span>
+                                </a>
+                            </li>
+                        }
+
+                        if (role == "Guest")
+                        {
+                            <li>
+                                <a href="@Url.Action("Create", "Households")">
+                                    <i class="material-icons">home</i>
+                                    <span>Create a Household</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("", "")">
+                                    <i class="material-icons">supervisor_account</i>
+                                    <span>Join a Household</span>
+                                </a>
+                            </li>
+                        }
+                    }
+
+                    @*<li>
+                <a href="javascript:void(0);" class="menu-toggle">
+                    <i class="material-icons">widgets</i>
+                    <span>Widgets</span>
+                </a>
+                <ul class="ml-menu">
                     <li>
                         <a href="javascript:void(0);" class="menu-toggle">
-                            <i class="material-icons">widgets</i>
-                            <span>Widgets</span>
+                            <span>Cards</span>
                         </a>
                         <ul class="ml-menu">
                             <li>
-                                <a href="javascript:void(0);" class="menu-toggle">
-                                    <span>Cards</span>
-                                </a>
-                                <ul class="ml-menu">
-                                    <li>
-                                        <a href="pages/widgets/cards/basic.html">Basic</a>
-                                    </li>
-                                    <li>
-                                        <a href="pages/widgets/cards/colored.html">Colored</a>
-                                    </li>
-                                    <li>
-                                        <a href="pages/widgets/cards/no-header.html">No Header</a>
-                                    </li>
-                                </ul>
+                                <a href="pages/widgets/cards/basic.html">Basic</a>
+                            </li>
+                            <li>
+                                <a href="pages/widgets/cards/colored.html">Colored</a>
+                            </li>
+                            <li>
+                                <a href="pages/widgets/cards/no-header.html">No Header</a>
                             </li>
                         </ul>
                     </li>
                 </ul>
+            </li>*@
+                </ul>
+
+                <!-- Modal -->
+                @*<div class="modal fade" id="newHOHmodal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title" id="defaultModalLabel">Assign a new HOH</h4>
+                            </div>
+                            <div class="modal-body">
+                                Your household has members in it! In order to leave, you must assign a new Head of Household
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-link waves-effect">SAVE CHANGES</button>
+                                <button type="button" class="btn btn-link waves-effect" data-dismiss="modal">CLOSE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+                <!-- /Modal -->
+
             </div>
             <!-- #Menu -->
             <!-- Footer -->
             @*<div class="legal">
-                <div class="copyright">
-                    &copy; 2016 - 2017 <a href="javascript:void(0);">AdminBSB - Material Design</a>.
-                </div>
-                <div class="version">
-                    <b>Version: </b> 1.0.5
-                </div>
-            </div>*@
+            <div class="copyright">
+                &copy; 2016 - 2017 <a href="javascript:void(0);">AdminBSB - Material Design</a>.
+            </div>
+            <div class="version">
+                <b>Version: </b> 1.0.5
+            </div>
+        </div>*@
             <!-- #Footer -->
         </aside>
         <!-- #END# Left Sidebar -->

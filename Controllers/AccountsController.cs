@@ -17,7 +17,7 @@ namespace FinancialPlanner.Controllers
         // GET: Accounts
         public ActionResult Index()
         {
-            var accounts = db.Accounts.Include(a => a.Bank).Include(a => a.Household).Include(a => a.Type);
+            var accounts = db.Accounts.Include(a => a.Bank).Include(a => a.Type);
             return View(accounts.ToList());
         }
 
@@ -40,7 +40,6 @@ namespace FinancialPlanner.Controllers
         public ActionResult Create()
         {
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name");
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name");
             ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type");
             return View();
         }
@@ -50,7 +49,7 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,HouseholdId,TypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
+        public ActionResult Create([Bind(Include = "Id,TypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
         {
             if (ModelState.IsValid)
             {
@@ -60,7 +59,6 @@ namespace FinancialPlanner.Controllers
             }
 
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", account.HouseholdId);
             ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.TypeId);
             return View(account);
         }
@@ -78,7 +76,6 @@ namespace FinancialPlanner.Controllers
                 return HttpNotFound();
             }
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", account.HouseholdId);
             ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.TypeId);
             return View(account);
         }
@@ -88,7 +85,7 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,HouseholdId,TypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
+        public ActionResult Edit([Bind(Include = "Id,TypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
         {
             if (ModelState.IsValid)
             {
@@ -97,7 +94,6 @@ namespace FinancialPlanner.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", account.HouseholdId);
             ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.TypeId);
             return View(account);
         }

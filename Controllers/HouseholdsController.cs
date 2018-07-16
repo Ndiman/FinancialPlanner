@@ -6,18 +6,33 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using FinancialPlanner.Helpers;
 using FinancialPlanner.Models;
+using FinancialPlanner.View_Models;
+using Microsoft.AspNet.Identity;
 
 namespace FinancialPlanner.Controllers
 {
     public class HouseholdsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private UserRolesHelper roleHelper = new UserRolesHelper();
 
         // GET: Households
         public ActionResult Index()
         {
             return View(db.Households.ToList());
+        }
+
+        public ActionResult Dashboard(int houseId)
+        {
+            return View();
+        }
+
+        public ActionResult ViewMembers(int houseId)
+        {
+            ViewBag.HouseId = houseId;
+            return View(db.Users.Where(b => b.HouseholdId == houseId).ToList());
         }
 
         // GET: Households/Details/5
@@ -46,12 +61,25 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name,Description")] Household household)
+        public ActionResult Create([Bind(Include = "Id,Name,Description,Deleted")] Household household)
         {
             if (ModelState.IsValid)
             {
+                var userId = User.Identity.GetUserId();
+                var isGuest = roleHelper.IsUserInRole(userId, "Guest");
+                if (isGuest == true)
+                {
+                    roleHelper.RemoveUserFromRole(userId, "Guest");
+                }
+                roleHelper.AddUserToRole(userId, "HOH");
+
                 db.Households.Add(household);
                 db.SaveChanges();
+
+                var user = db.Users.Find(userId);
+                user.HouseholdId = household.Id;
+                db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -78,7 +106,7 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Name,Description")] Household household)
+        public ActionResult Edit([Bind(Include = "Id,Name,Description,Deleted")] Household household)
         {
             if (ModelState.IsValid)
             {
@@ -89,31 +117,127 @@ namespace FinancialPlanner.Controllers
             return View(household);
         }
 
-        // GET: Households/Delete/5
-        public ActionResult Delete(int? id)
+        [Authorize]
+        public ActionResult Leave(int? houseId)
         {
-            if (id == null)
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            var userRole = roleHelper.ListUserRoles(userId).FirstOrDefault();
+
+            if (userRole == "HOH")
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                var memberCnt = db.Users.AsNoTracking().Where(u => u.HouseholdId == houseId).Count();
+                if(memberCnt == 1)
+                {
+                    roleHelper.RemoveUserFromRole(userId, "HOH");
+                    roleHelper.AddUserToRole(userId, "Guest");
+
+                    user.Household = null;
+                    db.Entry(user).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    var houseHold = db.Households.Find(houseId);
+                    houseHold.Deleted = true;
+                    db.Entry(houseHold).State = EntityState.Modified;
+                    db.SaveChanges();
+                }
+                else
+                {
+                    return RedirectToAction("newHOH", "Households");
+                    
+                }
             }
-            Household household = db.Households.Find(id);
-            if (household == null)
+            else
             {
-                return HttpNotFound();
+                roleHelper.RemoveUserFromRole(userId, "Member");
+                roleHelper.AddUserToRole(userId, "Guest");
+
+                user.HouseholdId = null;
+                db.Entry(user).State = EntityState.Modified;
+                db.SaveChanges();
             }
-            return View(household);
+
+            return RedirectToAction("Index", "Home");
         }
 
-        // POST: Households/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        [Authorize]
+        //GET
+        public ActionResult newHOH(int? houseId)
         {
-            Household household = db.Households.Find(id);
-            db.Households.Remove(household);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            var role = roleHelper.ListUserRoles(userId).FirstOrDefault();
+            var memberCnt = db.Users.AsNoTracking().Where(u => u.HouseholdId == houseId).Count();
+
+            var members = new List<ApplicationUser>();
+            var occupants = db.Users.Where(u => u.HouseholdId == houseId).ToList();
+            foreach (var person in occupants)
+            {
+                if (role == "Member")
+                {
+                    members.Add(person);
+                }
+            }
+            ViewBag.Members = new SelectList(members, "Id", "FirstName");
+
+            if (role == "HOH" && memberCnt > 1)
+            {
+                return View();
+            }
+
+            return RedirectToAction("Index", "Home");
         }
+
+        //POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult newHOH(newHOHVM newHOHVM)
+        {
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.AsNoTracking().FirstOrDefault(u => u.Id == userId);
+            var role = roleHelper.ListUserRoles(userId).FirstOrDefault();
+            if ( role == "HOH")
+            {
+                roleHelper.RemoveUserFromRole(userId, "HOH");
+                roleHelper.AddUserToRole(userId, "Guest");
+
+                user.Household = null;
+                db.Entry(user).State = EntityState.Modified;
+                db.SaveChanges();
+            }
+            else //if selected
+            {
+                roleHelper.RemoveUserFromRole(userId, "Member");
+                roleHelper.AddUserToRole(userId, "HOH");
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        //// GET: Households/Delete/5
+        //public ActionResult Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+        //    Household household = db.Households.Find(id);
+        //    if (household == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(household);
+        //}
+
+        //// POST: Households/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult DeleteConfirmed(int id)
+        //{
+        //    Household household = db.Households.Find(id);
+        //    db.Households.Remove(household);
+        //    db.SaveChanges();
+        //    return RedirectToAction("Index");
+        //}
 
         protected override void Dispose(bool disposing)
         {

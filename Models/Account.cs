@@ -8,7 +8,6 @@ namespace FinancialPlanner.Models
     public class Account
     {
         public int Id { get; set; }
-        public int HouseholdId { get; set; }
         public int TypeId { get; set; }
         public int BankId { get; set; }
         public string Name { get; set; }
@@ -17,8 +16,7 @@ namespace FinancialPlanner.Models
         public DateTime? Updated { get; set; }
         public decimal StartingBalance { get; set; }
         public decimal CurrentBalance { get; set; }
-
-        public virtual Household Household { get; set; }
+        
         public virtual AccountType Type { get; set; }
         public virtual Bank Bank { get; set; }
 

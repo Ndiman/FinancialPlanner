@@ -11,6 +11,7 @@ using Microsoft.Owin.Security;
 using FinancialPlanner.Models;
 using System.Web.Helpers;
 using System.IO;
+using FinancialPlanner.Helpers;
 
 namespace FinancialPlanner.Controllers
 {
@@ -19,12 +20,14 @@ namespace FinancialPlanner.Controllers
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
+        private ApplicationDbContext db = new ApplicationDbContext();
+        private UserRolesHelper roleHelper = new UserRolesHelper();
 
         public AccountController()
         {
         }
 
-        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -36,9 +39,9 @@ namespace FinancialPlanner.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
-                _signInManager = value; 
+            private set
+            {
+                _signInManager = value;
             }
         }
 
@@ -124,7 +127,7 @@ namespace FinancialPlanner.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent:  model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -141,9 +144,14 @@ namespace FinancialPlanner.Controllers
         //
         // GET: /Account/Register
         [AllowAnonymous]
-        public ActionResult Register()
+        public ActionResult Register(string email, string code)
         {
-            return View();
+            var myRegVM = new RegisterViewModel
+            {
+                Email = email,
+                Code = code
+            };
+            return View(myRegVM);
         }
 
         //
@@ -181,19 +189,32 @@ namespace FinancialPlanner.Controllers
                     model.AvatarPath = Url.Content(filename);
                 }
 
-                var user = new ApplicationUser {
+                var user = new ApplicationUser
+                {
                     UserName = model.Email,
                     Email = model.Email,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     DisplayName = model.DisplayName,
-                    AvatarPath = model.AvatarPath};
+                    AvatarPath = model.AvatarPath
+                };
+
+                if (!string.IsNullOrEmpty(model.Code))
+                {
+                    var db = new ApplicationDbContext();
+                    user.HouseholdId = db.Invitations.FirstOrDefault(i => i.Code == model.Code && i.Email == model.Email).HouseholdId;
+                }
 
                 var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+                    if (string.IsNullOrEmpty(model.Code))
+                        roleHelper.AddUserToRole(user.Id, "Guest");
+                    else
+                        roleHelper.AddUserToRole(user.Id, "Member");
+
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
                     // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
