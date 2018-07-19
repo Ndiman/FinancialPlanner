@@ -1,0 +1,55 @@
+﻿@using Microsoft.AspNet.Identity;
+@using FinancialPlanner.Models;
+@*<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">*@
+
+@{ 
+    var db = new ApplicationDbContext();
+    var thisUserId = User.Identity.GetUserId();
+    var thisUser = db.Users.Find(thisUserId);
+}
+
+<div class="form-group">
+    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search Users..." />
+</div>
+
+
+<div class="container-fluid" id="myUL">
+    <div class="row">
+        @foreach (var user in Model)
+        {
+            //Setup a card layout for my house members
+            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box" id="profileCard">
+                    <div class="image">
+                        <img src="@Url.Content(user.AvatarPath)" class="media-object" style="width:80px">
+                    </div>
+                    <div class="content">
+                        <a href="@Url.Action("InviteUser", "Invitations", new { email = user.Email, houseId = thisUser.HouseholdId})"><h4>@user.FirstName @user.LastName</h4></a>
+                        <div class="text">@user.Email</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<script>
+function myFunction() {
+    var input, filter, ul, li, a, i, form;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("myUL");
+    li = ul.getElementsByTagName("a");
+    form = document.getElementsByClassName("col-lg-3");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("h4")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            form[i].style.display = "";
+        } else {
+            form[i].style.display = "none";
+        }
+    }
+}
+</script>
+

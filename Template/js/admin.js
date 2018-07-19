@@ -282,11 +282,11 @@ $.AdminBSB.input = {
         });
 
         //Not blank form
-        $('.form-control').each(function () {
-            if ($(this).val() !== '') {
-                $(this).parents('.form-line').addClass('focused');
-            }
-        });
+        //$('.form-control').each(function () {
+        //    if ($(this).val() !== '') {
+        //        $(this).parents('.form-line').addClass('focused');
+        //    }
+        //});
     }
 }
 //==========================================================================================================================

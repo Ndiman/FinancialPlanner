@@ -36,6 +36,7 @@
                 @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
                 {
                     @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.Code)
                     <form id="sign_in" method="POST">
                         <div class="msg">Sign in to start your session</div>
                         <div class="input-group">
@@ -43,7 +44,7 @@
                                 <i class="material-icons">email</i>
                             </span>
                             <div class="form-line">
-                                <input type="email" class="form-control" name="Email" placeholder="Email Address" required autofocus>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Email Address" })
                             </div>
                         </div>
                         <div class="input-group">

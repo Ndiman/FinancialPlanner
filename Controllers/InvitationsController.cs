@@ -68,7 +68,7 @@ namespace FinancialPlanner.Controllers
                 var houseName = db.Households.Find(invitation.HouseholdId).Name;
                 var senderFName = db.Users.Find(invitation.SenderId).FirstName;
                 var senderLName = db.Users.Find(invitation.SenderId).LastName;
-                //var senderName = db.Users.Find(invitation.)
+
                 var email = new IdentityMessage()
                 {
                     Subject = string.Format(senderFName + " " + senderLName + " " + "has invited you to join their Household on Dandelion | Financial Planner"),
@@ -79,7 +79,7 @@ namespace FinancialPlanner.Controllers
                 var svc = new EmailService();
                 await svc.SendAsync(email);
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("MyDashboard", "Dashboard");
             }
             else
             {
@@ -92,33 +92,76 @@ namespace FinancialPlanner.Controllers
                 ModelState.AddModelError("", message);
                 return View(invitation);
             }
-            
+
         }
 
-        [Authorize]
-        public ActionResult Join()
-        {
-            return View();
-        }
+       
 
-        [HttpPost]
+       
         public ActionResult Join(string email, string code)
         {
             var userId = User.Identity.GetUserId();
+            var user = db.Users.Find(userId);
 
             var invite = db.Invitations.FirstOrDefault(i => i.Email == email && i.Code == code);
-            if(invite != null)
+            if (invite != null)
             {
                 invite.Accepted = true;
                 db.SaveChanges();
-
-                var user = db.Users.Find(userId);
+                
                 user.HouseholdId = invite.HouseholdId;
                 db.SaveChanges();
 
+                roleHelper.RemoveUserFromRole(userId, "Guest");
                 roleHelper.AddUserToRole(userId, "Member");
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("MyDashboard", "Dashboard", new { houseId = user.HouseholdId});
+        }
+
+        public ActionResult SearchGuests(string searchString)
+        {
+            var users = db.Users.Where(u => u.HouseholdId == null).ToList();
+            return View(users);
+        }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<ActionResult> InviteUser([Bind(Include = "HouseholdId,Email,LifeSpan")] Invitation invitation, int houseId, string Email)
+        {
+            if (ModelState.IsValid)
+            {
+                invitation.SenderId = User.Identity.GetUserId();
+                invitation.LifeSpan = 30;
+                invitation.Created = DateTime.Now;
+                invitation.Code = Guid.NewGuid().ToString();
+                invitation.HouseholdId = houseId;
+
+                db.Invitations.Add(invitation);
+                db.SaveChanges();
+
+                //email
+                var callbackUrl = Url.Action("Login", "Account", new { email = invitation.Email, code = invitation.Code }, protocol: Request.Url.Scheme);
+                var houseName = db.Households.Find(invitation.HouseholdId).Name;
+                var senderFName = db.Users.Find(invitation.SenderId).FirstName;
+                var senderLName = db.Users.Find(invitation.SenderId).LastName;
+
+                var email = new IdentityMessage()
+                {
+                    Subject = "Dandelion | Financial Planner Household Invitation",
+                    Body = string.Format(senderFName + " " + senderLName + " " + "has invited you to join their Household on Dandelion | Financial Planner") + "<br /> Click <a href=\"" + callbackUrl + "\">this link</a> to accept the invitation",
+                    Destination = invitation.Email
+                };
+
+                var svc = new EmailService();
+                await svc.SendAsync(email);
+
+                var userId = User.Identity.GetUserId();
+                var user = db.Users.Find(userId);
+                return RedirectToAction("MyDashboard", "Dashboard", new { houseId = user.HouseholdId});
+            }
+
+            return View();
+
         }
 
         // GET: Invitations/Edit/5

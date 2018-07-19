@@ -60,6 +60,9 @@ namespace FinancialPlanner.Models
 
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
+
+        [Display(Name = "Code")]
+        public string Code { get; set; }
     }
 
     public class RegisterViewModel

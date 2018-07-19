@@ -35,6 +35,26 @@ namespace FinancialPlanner.Controllers
             return View(db.Users.Where(b => b.HouseholdId == houseId).ToList());
         }
 
+        public ActionResult MyBudgets(int houseId)
+        {
+            return View(db.Budgets.Where(b => b.HouseholdId == houseId).ToList());
+        }
+
+        public ActionResult MyAccounts(int bankId)
+        {
+            return View(db.Accounts.Where(b => b.BankId == bankId).ToList());
+        }
+
+        public ActionResult MyTransactions(int accountId)
+        {
+            return View(db.Transactions.Where(b => b.AccountId == accountId).ToList());
+        }
+
+        public ActionResult MyBudgetItems(int budgetId)
+        {
+            return View(db.BudgetItems.Where(b => b.BudgetId == budgetId).ToList());
+        }
+
         // GET: Households/Details/5
         public ActionResult Details(int? id)
         {
@@ -80,7 +100,7 @@ namespace FinancialPlanner.Controllers
                 user.HouseholdId = household.Id;
                 db.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction("MyDashboard", "Dashboard", new { houseId = user.HouseholdId});
             }
 
             return View(household);
@@ -169,20 +189,25 @@ namespace FinancialPlanner.Controllers
             var role = roleHelper.ListUserRoles(userId).FirstOrDefault();
             var memberCnt = db.Users.AsNoTracking().Where(u => u.HouseholdId == houseId).Count();
 
-            var members = new List<ApplicationUser>();
-            var occupants = db.Users.Where(u => u.HouseholdId == houseId).ToList();
-            foreach (var person in occupants)
+            var data = new newHOHVM();
             {
-                if (role == "Member")
+                data.MemberList = new List<ApplicationUser>();
+                var occupants = db.Users.Where(u => u.HouseholdId == houseId).ToList();
+                foreach (var person in occupants)
                 {
-                    members.Add(person);
+                    if (role == "Member")
+                    {
+                        data.MemberList.Add(person);
+                    }
                 }
             }
-            ViewBag.Members = new SelectList(members, "Id", "FirstName");
+            
+            
+            ViewBag.Members = new SelectList(data.MemberList, "Id", "FirstName");
 
             if (role == "HOH" && memberCnt > 1)
             {
-                return View();
+                return View(data);
             }
 
             return RedirectToAction("Index", "Home");

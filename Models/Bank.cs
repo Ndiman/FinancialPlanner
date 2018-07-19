@@ -14,7 +14,8 @@ namespace FinancialPlanner.Models
         public string State { get; set; }
         public string Zip { get; set; }
         public string Phone { get; set; }
-        public string HouseholdId { get; set; }
+        public string RoutingNumber { get; set; }
+        public int HouseholdId { get; set; }
 
         public virtual Household Household { get; set; }
         public virtual ICollection<Account> Accounts { get; set; }

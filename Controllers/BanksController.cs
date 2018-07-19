@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using FinancialPlanner.Models;
+using Microsoft.AspNet.Identity;
 
 namespace FinancialPlanner.Controllers
 {
@@ -18,6 +19,11 @@ namespace FinancialPlanner.Controllers
         public ActionResult Index()
         {
             return View(db.Banks.ToList());
+        }
+
+        public ActionResult MyBanks(int houseId)
+        {
+            return View(db.Banks.Where(b => b.HouseholdId == houseId));
         }
 
         // GET: Banks/Details/5
@@ -46,13 +52,17 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name,Address,City,State,Zip,Phone")] Bank bank)
+        public ActionResult Create([Bind(Include = "Id,Name,Address,City,State,Zip,Phone,RoutingNumber,HouseholdId")] Bank bank)
         {
             if (ModelState.IsValid)
             {
+                var userId = User.Identity.GetUserId();
+                var user = db.Users.Find(userId);
+                bank.HouseholdId = user.Household.Id;
+
                 db.Banks.Add(bank);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("MyBanks", new { houseId = bank.HouseholdId});
             }
 
             return View(bank);
@@ -78,13 +88,13 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Name,Address,City,State,Zip,Phone")] Bank bank)
+        public ActionResult Edit([Bind(Include = "Id,Name,Address,City,State,Zip,Phone,RoutingNumber,HouseholdId")] Bank bank)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(bank).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("MyBanks", new { houseId = bank.HouseholdId});
             }
             return View(bank);
         }
@@ -112,7 +122,7 @@ namespace FinancialPlanner.Controllers
             Bank bank = db.Banks.Find(id);
             db.Banks.Remove(bank);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("MyBanks", new { houseId = bank.HouseholdId });
         }
 
         protected override void Dispose(bool disposing)

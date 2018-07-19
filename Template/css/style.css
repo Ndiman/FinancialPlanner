@@ -2869,7 +2869,7 @@ section.content {
   .card .bg-blue-grey,
   .card .bg-black {
     border-bottom: none !important;
-    color: #fff !important; }
+    color: rgba(0, 0, 0, 0.8) !important; }
     .card .bg-red h2, .card .bg-red small, .card .bg-red .material-icons,
     .card .bg-pink h2,
     .card .bg-pink small,
@@ -6639,21 +6639,22 @@ fieldset[disabled] .form-control {
 
 /* Navbars ===================================== */
 .navbar {
-  font-family: "Roboto", sans-serif;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  border-radius: 0;
-  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  -ms-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-  border: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 12;
-  width: 100%; }
+    font-family: "Roboto", sans-serif;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    -ms-border-radius: 0;
+    border-radius: 0;
+    -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    -ms-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    border: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 12;
+    width: 100%;
+}
   .navbar .navbar-brand {
     white-space: nowrap;
     -ms-text-overflow: ellipsis;
@@ -7518,6 +7519,7 @@ fieldset[disabled] .form-control {
     position: relative;
     border-bottom: 1px solid #e9e9e9;
     background: url("../images/dandelion4.jpg") no-repeat no-repeat;
+    background-size: cover;
     height: 135px; }
     .sidebar .user-info .image {
       margin-right: 12px;
@@ -7532,7 +7534,7 @@ fieldset[disabled] .form-control {
       cursor: default;
       display: block;
       position: relative;
-      top: 25px; }
+      top: 10px; }
       .sidebar .user-info .info-container .name {
         white-space: nowrap;
         -ms-text-overflow: ellipsis;
@@ -7720,7 +7722,11 @@ fieldset[disabled] .form-control {
 
 /* Login Page ================================== */
 .login-page {
-  background: url("../images/dandelion-background.jpg") no-repeat no-repeat;
+  background-image: url("../images/dandelion-background4.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center center;
+  height: 75vh;
   padding-left: 0;
   max-width: 360px;
   margin: 5% auto;
@@ -7742,15 +7748,20 @@ fieldset[disabled] .form-control {
       text-align: center;
       color: #fff; }
     .login-page .login-box .logo small {
-      display: block;
-      width: 100%;
-      text-align: center;
-      color: #fff;
-      margin-top: -5px; }
+        display: block;
+        width: 100%;
+        text-align: center;
+        color: #FFEE63;
+        margin-top: -5px;
+    }
 
 /* Sign Up Page ================================ */
 .signup-page {
-  background-color: #4caf50;
+  background-image: url("../images/dandelion-background4.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 75vh;
   padding-left: 0;
   max-width: 360px;
   margin: 5% auto;
@@ -7775,12 +7786,16 @@ fieldset[disabled] .form-control {
       display: block;
       width: 100%;
       text-align: center;
-      color: #fff;
+      color: #FFEE63;
       margin-top: -5px; }
 
 /* Forgot Password Page ======================== */
 .fp-page {
-  background-color: #4caf50;
+  background-image: url("../images/dandelion-background4.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 75vh;
   padding-left: 0;
   max-width: 360px;
   margin: 5% auto;
@@ -7805,7 +7820,7 @@ fieldset[disabled] .form-control {
       display: block;
       width: 100%;
       text-align: center;
-      color: #fff;
+      color: #FFEE63;
       margin-top: -5px; }
 
 /* 404 Not Found Page ========================== */

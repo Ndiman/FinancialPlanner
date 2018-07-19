@@ -60,10 +60,15 @@ namespace FinancialPlanner.Controllers
         //
         // GET: /Account/Login
         [AllowAnonymous]
-        public ActionResult Login(string returnUrl)
+        public ActionResult Login(string returnUrl, string email, string code)
         {
             ViewBag.ReturnUrl = returnUrl;
-            return View();
+            var myLogVM = new LoginViewModel
+            {
+                Email = email,
+                Code = code
+            };
+            return View(myLogVM);
         }
 
         //
@@ -78,13 +83,26 @@ namespace FinancialPlanner.Controllers
                 return View(model);
             }
 
+            //if (!string.IsNullOrEmpty(model.Code))
+            //{
+            //    var db = new ApplicationDbContext();
+                
+            //    var userId = db.Users.Find(model.Email).Id;
+            //    var user = db.Users.Find(userId);
+            //    user.HouseholdId = db.Invitations.FirstOrDefault(i => i.Code == model.Code && i.Email == model.Email).HouseholdId;
+            //    //roleHelper.RemoveUserFromRole(user.Id, "Guest");
+            //    //roleHelper.AddUserToRole(user.Id, "Member");
+            //}
+
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
                 case SignInStatus.Success:
-                    if (returnUrl == null)
+                    if (!string.IsNullOrEmpty(model.Code))
+                        return RedirectToAction("Join", "Invitations", new { email = model.Email, code = model.Code});
+                    else if (returnUrl == null)
                         return RedirectToAction("Index", "Home");
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
@@ -96,6 +114,7 @@ namespace FinancialPlanner.Controllers
                     ModelState.AddModelError("", "Invalid login attempt.");
                     return View(model);
             }
+
         }
 
         //

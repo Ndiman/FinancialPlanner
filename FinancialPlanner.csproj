@@ -203,6 +203,7 @@
     <Compile Include="Controllers\BanksController.cs" />
     <Compile Include="Controllers\BudgetItemsController.cs" />
     <Compile Include="Controllers\BudgetsController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HouseholdsController.cs" />
     <Compile Include="Controllers\InvitationsController.cs" />
@@ -228,6 +229,7 @@
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="View Models\MyDashboardVM.cs" />
     <Compile Include="View Models\newHOHVM.cs" />
     <Compile Include="View Models\UserProfileVM.cs" />
   </ItemGroup>
@@ -329,6 +331,8 @@
     <Content Include="Template\images\dandelion-background.jpg" />
     <Content Include="Template\images\dandelion-background2.jpg" />
     <Content Include="Template\images\dandelion-background3.jpg" />
+    <Content Include="Template\images\dandelion-background4.jpg" />
+    <Content Include="Template\images\dandelion-background5.jpg" />
     <Content Include="Template\images\dandelion.jpg" />
     <Content Include="Template\images\dandelion2.jpg" />
     <Content Include="Template\images\dandelion3.jpg" />
@@ -375,6 +379,7 @@
     <Content Include="Template\images\image-gallery\thumb\thumb-8.jpg" />
     <Content Include="Template\images\image-gallery\thumb\thumb-9.jpg" />
     <Content Include="Template\images\screenshot.png" />
+    <Content Include="Template\images\search.png" />
     <Content Include="Template\images\thumbs-up.png" />
     <Content Include="Template\images\user-img-background.jpg" />
     <Content Include="Template\images\user.jpg" />
@@ -3679,11 +3684,6 @@
     <Content Include="Views\AccountTypes\Details.cshtml" />
     <Content Include="Views\AccountTypes\Edit.cshtml" />
     <Content Include="Views\AccountTypes\Index.cshtml" />
-    <Content Include="Views\Banks\Create.cshtml" />
-    <Content Include="Views\Banks\Delete.cshtml" />
-    <Content Include="Views\Banks\Details.cshtml" />
-    <Content Include="Views\Banks\Edit.cshtml" />
-    <Content Include="Views\Banks\Index.cshtml" />
     <Content Include="Views\Budgets\Create.cshtml" />
     <Content Include="Views\Budgets\Delete.cshtml" />
     <Content Include="Views\Budgets\Details.cshtml" />
@@ -3915,9 +3915,21 @@
     <Content Include="Views\Accounts\Details.cshtml" />
     <Content Include="Views\Accounts\Edit.cshtml" />
     <Content Include="Views\Accounts\Index.cshtml" />
-    <Content Include="Views\Invitations\Join.cshtml" />
     <Content Include="Views\Manage\UpdateUserProfile.cshtml" />
     <Content Include="Views\Households\newHOH.cshtml" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
+    <Content Include="Views\Dashboard\MyDashboard.cshtml" />
+    <Content Include="Views\Banks\Create.cshtml" />
+    <Content Include="Views\Banks\Delete.cshtml" />
+    <Content Include="Views\Banks\Details.cshtml" />
+    <Content Include="Views\Banks\Edit.cshtml" />
+    <Content Include="Views\Banks\Index.cshtml" />
+    <Content Include="Views\Households\MyBudgets.cshtml" />
+    <Content Include="Views\Households\MyAccounts.cshtml" />
+    <Content Include="Views\Households\MyTransactions.cshtml" />
+    <Content Include="Views\Households\MyBudgetItems.cshtml" />
+    <Content Include="Views\Banks\MyBanks.cshtml" />
+    <Content Include="Views\Invitations\SearchGuests.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

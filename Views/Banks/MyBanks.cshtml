@@ -1,0 +1,43 @@
+﻿@model IEnumerable<FinancialPlanner.Models.Bank>
+
+
+
+<div class="container-fluid">
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        My Banks
+                    </h2>
+                    <small>@Html.ActionLink("Add a new Bank", "Create")</small>
+                </div>
+                <div class="body table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone #</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bank in Model)
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(modelItem => bank.Name)</td>
+                                    <td>@Html.DisplayFor(modelItem => bank.Phone)</td>
+                                    <td>
+                                        @Html.ActionLink("Edit", "Edit", new { id = bank.Id }) |
+                                        @Html.ActionLink("Details", "Details", new { id = bank.Id }) |
+                                        @Html.ActionLink("Delete", "Delete", new { id = bank.Id }) |
+                                        @Html.ActionLink("Add Account", "Create", "Accounts")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
