@@ -15,10 +15,11 @@ namespace FinancialPlanner.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Accounts
-        public ActionResult Index()
+        public ActionResult Index(int bankId)
         {
-            var accounts = db.Accounts.Include(a => a.Bank).Include(a => a.Type);
-            return View(accounts.ToList());
+            //ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Name");
+            //var accounts = db.Accounts.Include(a => a.Bank).Include(a => a.Type);
+            return View(db.Accounts.Where(a => a.BankId == bankId).ToList());
         }
 
         // GET: Accounts/Details/5
@@ -37,10 +38,9 @@ namespace FinancialPlanner.Controllers
         }
 
         // GET: Accounts/Create
-        public ActionResult Create()
+        public ActionResult Create(int bankId)
         {
-            ViewBag.BankId = new SelectList(db.Banks, "Id", "Name");
-            ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type");
+            ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Type");
             return View();
         }
 
@@ -49,17 +49,20 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,TypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
+        public ActionResult Create([Bind(Include = "AccountTypeId,BankId,Name,Description,StartingBalance")] Account account, int bankId)
         {
             if (ModelState.IsValid)
             {
+                account.CurrentBalance = account.StartingBalance;
+                account.Created = DateTimeOffset.Now;
+
                 db.Accounts.Add(account);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { bankId});
             }
 
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.TypeId);
+            ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.AccountTypeId);
             return View(account);
         }
 
@@ -76,7 +79,7 @@ namespace FinancialPlanner.Controllers
                 return HttpNotFound();
             }
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.TypeId);
+            ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Type");
             return View(account);
         }
 
@@ -85,16 +88,18 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,TypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
+        public ActionResult Edit([Bind(Include = "Id,AccountTypeId,BankId,Name,Description,Created,Updated,StartingBalance,CurrentBalance")] Account account)
         {
             if (ModelState.IsValid)
             {
+                account.Updated = DateTimeOffset.Now;
+
                 db.Entry(account).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { bankId = account.BankId});
             }
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.TypeId);
+            ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.AccountTypeId);
             return View(account);
         }
 

@@ -78,6 +78,9 @@ namespace FinancialPlanner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.Find(userId);
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -101,9 +104,9 @@ namespace FinancialPlanner.Controllers
             {
                 case SignInStatus.Success:
                     if (!string.IsNullOrEmpty(model.Code))
-                        return RedirectToAction("Join", "Invitations", new { email = model.Email, code = model.Code});
+                        return RedirectToAction("Join", "Invitations", new { email = model.Email, code = model.Code });
                     else if (returnUrl == null)
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Dashboard");
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");

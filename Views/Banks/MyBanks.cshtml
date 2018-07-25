@@ -30,7 +30,8 @@
                                         @Html.ActionLink("Edit", "Edit", new { id = bank.Id }) |
                                         @Html.ActionLink("Details", "Details", new { id = bank.Id }) |
                                         @Html.ActionLink("Delete", "Delete", new { id = bank.Id }) |
-                                        @Html.ActionLink("Add Account", "Create", "Accounts")
+                                        @Html.ActionLink("Add Account", "Create", "Accounts", new { bankId = bank.Id }, null) |
+                                        @Html.ActionLink("View Accounts", "Index", "Accounts", new { bankId = bank.Id}, null)
                                     </td>
                                 </tr>
                             }

@@ -1,6 +1,74 @@
 ﻿@model FinancialPlanner.Models.Account
 
-@{
+
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    Edit Account
+                </h2>
+            </div>
+            <div class="body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.BankId)
+                    @Html.HiddenFor(model => model.StartingBalance)
+                    @Html.HiddenFor(model => model.CurrentBalance)
+                    @Html.HiddenFor(model => model.Created)
+
+                    <form class="form-horizontal">
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.AccountType, htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    @Html.DropDownList("AccountTypeId", null, htmlAttributes: new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-lg-offset-2 col-md-offset-2 col-sm-offset-4 col-xs-offset-5">
+                                <button type="submit" class="btn bg-yellow m-t-15 waves-effect">SAVE</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*@{
     ViewBag.Title = "Edit";
 }
 
@@ -17,18 +85,10 @@
         @Html.HiddenFor(model => model.Id)
 
         <div class="form-group">
-            @Html.LabelFor(model => model.TypeId, "TypeId", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.AccountTypeId, "TypeId", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownList("TypeId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TypeId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.BankId, "BankId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("BankId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.BankId, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.AccountTypeId, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -49,38 +109,6 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Created, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Created, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Created, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Updated, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Updated, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Updated, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.StartingBalance, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.StartingBalance, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.StartingBalance, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CurrentBalance, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CurrentBalance, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.CurrentBalance, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
@@ -90,4 +118,4 @@
 
 <div>
     @Html.ActionLink("Back to List", "Index")
-</div>
+</div>*@

@@ -1,5 +1,6 @@
 ﻿using FinancialPlanner.Models;
 using FinancialPlanner.View_Models;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,13 @@ namespace FinancialPlanner.Controllers
         // GET: Dashboard
         public ActionResult Index()
         {
-            return View();
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.Find(userId);
+
+            if (User.IsInRole("HOH") || User.IsInRole("Member"))
+                return RedirectToAction("MyDashboard", new { houseId = user.HouseholdId });
+            else
+                return View();
         }
 
         public ActionResult MyDashboard(int houseId)

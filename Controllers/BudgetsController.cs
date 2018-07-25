@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using FinancialPlanner.Models;
+using Microsoft.AspNet.Identity;
 
 namespace FinancialPlanner.Controllers
 {
@@ -15,10 +16,10 @@ namespace FinancialPlanner.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Budgets
-        public ActionResult Index()
+        public ActionResult Index(int houseId)
         {
-            var budgets = db.Budgets.Include(b => b.Household);
-            return View(budgets.ToList());
+            //var budgets = db.Budgets.Include(b => b.Household);
+            return View(db.Budgets.Where(b => b.HouseholdId == houseId).ToList());
         }
 
         // GET: Budgets/Details/5
@@ -52,9 +53,14 @@ namespace FinancialPlanner.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = User.Identity.GetUserId();
+                var user = db.Users.Find(userId);
+                budget.HouseholdId = user.Household.Id;
+                budget.CurrentBalance = 0;
+
                 db.Budgets.Add(budget);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { houseId = budget.HouseholdId});
             }
 
             ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", budget.HouseholdId);

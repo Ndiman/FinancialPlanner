@@ -12,11 +12,14 @@ namespace FinancialPlanner.Models
         public decimal Amount { get; set; }
         public string Title { get; set; }
         public string Memo { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime? Updated { get; set; }
+        public DateTimeOffset Created { get; set; }
+        public DateTimeOffset? Updated { get; set; }
         public bool Reconciled { get; set; }
         public decimal ReconciledAmount { get; set; }
+        public int TransactionTypeId { get; set; }
 
+        
+        public virtual TransactionType TransactionType { get; set; }
         public virtual Account Account { get; set; }
     }
 }

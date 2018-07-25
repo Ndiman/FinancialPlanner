@@ -74,7 +74,7 @@
             <div class="navbar-header">
                 <a href="javascript:void(0);" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false"></a>
                 <a href="javascript:void(0);" class="bars"></a>
-                <a class="navbar-brand" href="index.html"><span style="color: #FFEE63">DANDELION</span> | Financial Planner</a>
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")"><span style="color: #FFEE63">DANDELION</span> | Financial Planner</a>
             </div>
             @*<div class="collapse navbar-collapse" id="navbar-collapse">
                     <ul class="nav navbar-nav navbar-right">
@@ -168,7 +168,7 @@
                     }
                 }
                 <div class="image" id="avatar-pic">
-                    <img src="@user.AvatarPath" width="65" height="65" alt="User" />
+                    <img src="@user.AvatarPath" width="65" height="65" alt="@Url.Content("~/Avatars/default.png")" />
                 </div>
                 <div class="info-container">
                     <div class="name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profile-name">@user.FirstName @user.LastName</div>
@@ -251,14 +251,14 @@
                                 </li>
                             }
                             @*else
-                                {
-                                    <li>
-                                        <a href="@Url.Action("newHOH", "Households", new { houseId = user.HouseholdId })">
-                                            <i class="material-icons">exit_to_app</i>
-                                            <span>Leave Household</span>
-                                        </a>
-                                    </li>
-                                }*@
+                {
+                    <li>
+                        <a href="@Url.Action("newHOH", "Households", new { houseId = user.HouseholdId })">
+                            <i class="material-icons">exit_to_app</i>
+                            <span>Leave Household</span>
+                        </a>
+                    </li>
+                }*@
 
                         }
 
@@ -286,6 +286,12 @@
                                     <span>Banks</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="@Url.Action("Index", "Budgets", new { houseId = user.HouseholdId })">
+                                    <i class="material-icons">account_balance_wallet</i>
+                                    <span>My Budgets</span>
+                                </a>
+                            </li>
 
                         }
 
@@ -307,29 +313,29 @@
                     }
 
                     @*<li>
-                            <a href="javascript:void(0);" class="menu-toggle">
-                                <i class="material-icons">widgets</i>
-                                <span>Widgets</span>
-                            </a>
-                            <ul class="ml-menu">
-                                <li>
-                                    <a href="javascript:void(0);" class="menu-toggle">
-                                        <span>Cards</span>
-                                    </a>
-                                    <ul class="ml-menu">
-                                        <li>
-                                            <a href="pages/widgets/cards/basic.html">Basic</a>
-                                        </li>
-                                        <li>
-                                            <a href="pages/widgets/cards/colored.html">Colored</a>
-                                        </li>
-                                        <li>
-                                            <a href="pages/widgets/cards/no-header.html">No Header</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>*@
+            <a href="javascript:void(0);" class="menu-toggle">
+                <i class="material-icons">widgets</i>
+                <span>Widgets</span>
+            </a>
+            <ul class="ml-menu">
+                <li>
+                    <a href="javascript:void(0);" class="menu-toggle">
+                        <span>Cards</span>
+                    </a>
+                    <ul class="ml-menu">
+                        <li>
+                            <a href="pages/widgets/cards/basic.html">Basic</a>
+                        </li>
+                        <li>
+                            <a href="pages/widgets/cards/colored.html">Colored</a>
+                        </li>
+                        <li>
+                            <a href="pages/widgets/cards/no-header.html">No Header</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>*@
                 </ul>
 
                 <!-- Modal -->

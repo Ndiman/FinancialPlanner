@@ -1,21 +1,68 @@
-﻿@model IEnumerable<FinancialPlanner.Models.Account>
+﻿@using FinancialPlanner.Models;
+@model IEnumerable<FinancialPlanner.Models.Account>
 
-@{
-    ViewBag.Title = "Index";
+
+<div class="container-fluid">
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        My Accounts
+                    </h2>
+                </div>
+                <div class="body table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Current Balance</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var account in Model)
+                            {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => account.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => account.AccountType.Type)</td>
+                                <td>@Html.DisplayFor(modelItem => account.CurrentBalance)</td>
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { id = account.Id }) |
+                                    @Html.ActionLink("Details", "Details", new { id = account.Id }) |
+                                    @Html.ActionLink("Delete", "Delete", new { id = account.Id }) |
+                                    @Html.ActionLink("Add Transaction", "Create", "Transactions", new { accountId = account.Id }, null) |
+                                    @Html.ActionLink("View Transactions", "Index", "Transactions", new { accountId = account.Id }, null)
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+@*@{
+
 }
 
-<h2>Index</h2>
+<h2>My Accounts</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
 <table class="table">
     <tr>
         <th>
             @Html.DisplayNameFor(model => model.Bank.Name)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Type.Type)
+            @Html.DisplayNameFor(model => model.AccountType)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.Name)
@@ -38,38 +85,39 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Bank.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Type.Type)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Description)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Created)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Updated)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.StartingBalance)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.CurrentBalance)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Bank.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AccountType.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Updated)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartingBalance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrentBalance)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
 
-</table>
+</table>*@

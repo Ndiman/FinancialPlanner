@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using FinancialPlanner.Models;
+using Microsoft.AspNet.Identity;
 
 namespace FinancialPlanner.Controllers
 {
@@ -15,10 +16,10 @@ namespace FinancialPlanner.Controllers
         private ApplicationDbContext db = new ApplicationDbContext();
 
         // GET: Transactions
-        public ActionResult Index()
+        public ActionResult Index(int accountId)
         {
-            var transactions = db.Transactions.Include(t => t.Account);
-            return View(transactions.ToList());
+            //var transactions = db.Transactions.Include(t => t.Account);
+            return View(db.Transactions.Where(t => t.AccountId == accountId).ToList());
         }
 
         // GET: Transactions/Details/5
@@ -37,9 +38,16 @@ namespace FinancialPlanner.Controllers
         }
 
         // GET: Transactions/Create
-        public ActionResult Create()
+        public ActionResult Create(int accountId)
         {
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.Find(userId);
+            var myHouse = user.HouseholdId;
+            var myBudgets = db.Budgets.Where(b => b.HouseholdId == myHouse).ToList();
+
+            ViewBag.MyBudgets = new SelectList(myBudgets, "Id", "Name");
             ViewBag.AccountId = new SelectList(db.Accounts, "Id", "Name");
+            ViewBag.TransactionTypeId = new SelectList(db.TransactionTypes, "Id", "Name");
             return View();
         }
 
@@ -48,13 +56,15 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,Updated,Reconciled,ReconciledAmount")] Transaction transaction)
+        public ActionResult Create([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,TransactionTypeId")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
+                transaction.Created = DateTimeOffset.Now;
+
                 db.Transactions.Add(transaction);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { accountId = transaction.AccountId});
             }
 
             ViewBag.AccountId = new SelectList(db.Accounts, "Id", "Name", transaction.AccountId);
