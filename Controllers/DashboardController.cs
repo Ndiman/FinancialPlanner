@@ -13,6 +13,11 @@ namespace FinancialPlanner.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+        //public ActionResult BudgetChart(int budgetId)
+        //{
+        //    return
+        //}
+
         // GET: Dashboard
         public ActionResult Index()
         {

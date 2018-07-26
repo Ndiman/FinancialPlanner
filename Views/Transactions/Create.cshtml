@@ -1,6 +1,86 @@
 ﻿@model FinancialPlanner.Models.Transaction
 
-@{
+
+<div class="row clearfix">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="header">
+                <h2>
+                    Add an Account with @ViewBag.Bank
+                </h2>
+            </div>
+            <div class="body">
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+
+                    <form class="form-horizontal">
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @required = true } })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.Memo, htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    <div class="form-line">
+                                        @Html.EditorFor(model => model.Memo, new { htmlAttributes = new { @class = "form-control" } })
+                                    </div>
+                                        @*@Html.DropDownList("MyBudgets", null, "--Select--", htmlAttributes: new { @class = "form-control"})*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                @Html.LabelFor(model => model.TransactionType, "Type", htmlAttributes: new { @class = "control-label" })
+                            </div>
+                            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                <div class="form-group">
+                                    @Html.DropDownList("TransactionTypeId", null, "--Select--", htmlAttributes: new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row clearfix">
+                            <div class="col-lg-offset-2 col-md-offset-2 col-sm-offset-4 col-xs-offset-5">
+                                <button type="submit" class="btn bg-yellow m-t-15 waves-effect">ADD TRANSACTION</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-actions no-color">
+    @Html.ActionLink("Back to Accounts", "Index", "Accounts", new { bankId = ViewBag.BankId }, null) |
+    @Html.ActionLink("Back to Transactions", "Index", "Transactions", new { accountId = ViewBag.AccountId }, null)
+</div>
+
+
+@*@{
     ViewBag.Title = "Create";
 }
 
@@ -64,4 +144,4 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-}
+}*@

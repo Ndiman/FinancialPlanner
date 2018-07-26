@@ -19,6 +19,13 @@ namespace FinancialPlanner.Controllers
         public ActionResult Index(int accountId)
         {
             //var transactions = db.Transactions.Include(t => t.Account);
+            var account = db.Accounts.Find(accountId);
+            ViewBag.Account = account.Name;
+            var bankId = account.BankId;
+            var bankName = db.Banks.Find(bankId);
+            ViewBag.Bank = bankName.Name;
+            ViewBag.BankId = bankId;
+            ViewBag.AccountId = accountId;
             return View(db.Transactions.Where(t => t.AccountId == accountId).ToList());
         }
 
@@ -34,6 +41,11 @@ namespace FinancialPlanner.Controllers
             {
                 return HttpNotFound();
             }
+
+            ViewBag.Account = transaction.Account.Name;
+            var bankId = transaction.Account.BankId;
+            var bankName = db.Banks.Find(bankId);
+            ViewBag.Bank = bankName.Name;
             return View(transaction);
         }
 
@@ -45,8 +57,15 @@ namespace FinancialPlanner.Controllers
             var myHouse = user.HouseholdId;
             var myBudgets = db.Budgets.Where(b => b.HouseholdId == myHouse).ToList();
 
+            var account = db.Accounts.Find(accountId);
+            ViewBag.Account = account.Name;
+            var bankId = account.BankId;
+            var bank = db.Banks.Find(bankId);
+            ViewBag.Bank = bank.Name;
+            ViewBag.BankId = bankId;
+            ViewBag.AccountId = accountId;
+
             ViewBag.MyBudgets = new SelectList(myBudgets, "Id", "Name");
-            ViewBag.AccountId = new SelectList(db.Accounts, "Id", "Name");
             ViewBag.TransactionTypeId = new SelectList(db.TransactionTypes, "Id", "Name");
             return View();
         }
@@ -58,12 +77,34 @@ namespace FinancialPlanner.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,TransactionTypeId")] Transaction transaction)
         {
+            var accountId = transaction.AccountId;
+            var account = db.Accounts.Find(accountId);
+            //var oldBalance = db.Accounts.AsNoTracking().FirstOrDefault(a => a.CurrentBalance == account.CurrentBalance);
+
             if (ModelState.IsValid)
             {
                 transaction.Created = DateTimeOffset.Now;
+                //transaction.Memo = name;
 
                 db.Transactions.Add(transaction);
                 db.SaveChanges();
+
+                decimal num1 = account.CurrentBalance;
+                decimal num2 = transaction.Amount;
+                var transactionTypeId = transaction.TransactionTypeId;
+                var transactionType = db.TransactionTypes.Find(transactionTypeId);
+                if(transactionType.Name == "Debit")
+                {
+                    decimal result = num1 - num2;
+                    account.CurrentBalance = result;
+                }
+                else if(transactionType.Name == "Credit")
+                {
+                    decimal result = num1 + num2;
+                    account.CurrentBalance = result;
+                }
+                db.SaveChanges();
+
                 return RedirectToAction("Index", new { accountId = transaction.AccountId});
             }
 
@@ -83,7 +124,18 @@ namespace FinancialPlanner.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.AccountId = new SelectList(db.Accounts, "Id", "Name", transaction.AccountId);
+            ViewBag.Account = transaction.Account.Name;
+            var bankId = transaction.Account.BankId;
+            var bankName = db.Banks.Find(bankId);
+            ViewBag.Bank = bankName.Name;
+            ViewBag.AccountId = transaction.AccountId;
+
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.Find(userId);
+            var myHouse = user.HouseholdId;
+            var myBudgets = db.Budgets.Where(b => b.HouseholdId == myHouse).ToList();
+            ViewBag.MyBudgets = new SelectList(myBudgets, "Id", "Name", transaction.Memo);
+            ViewBag.TransactionTypeId = new SelectList(db.TransactionTypes, "Id", "Name", transaction.TransactionTypeId);
             return View(transaction);
         }
 
@@ -92,13 +144,30 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,Updated,Reconciled,ReconciledAmount")] Transaction transaction)
+        public ActionResult Edit([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,Updated,Reconciled,ReconciledAmount,TransactionTypeId")] Transaction transaction)
         {
+            var transactionId = db.Transactions.AsNoTracking().FirstOrDefault(t => t.Id == transaction.Id);
+            var oldTransaction = db.Transactions.Find(transactionId);
+            var oldAmount = oldTransaction.Amount;
+
             if (ModelState.IsValid)
             {
+                //transaction.Updated = DateTimeOffset.Now;
+                //if(transaction.ReconciledAmount > 0)
+                //{
+                //    transaction.Reconciled = true;
+                //}
+                //if(oldAmount != transaction.Amount)
+                //{
+                //    if(oldAmount > transaction.Amount)
+                //    {
+
+                //    }
+                //}
+
                 db.Entry(transaction).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { accountId = transaction.AccountId});
             }
             ViewBag.AccountId = new SelectList(db.Accounts, "Id", "Name", transaction.AccountId);
             return View(transaction);
@@ -116,6 +185,10 @@ namespace FinancialPlanner.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.Account = transaction.Account.Name;
+            var bankId = transaction.Account.BankId;
+            var bankName = db.Banks.Find(bankId);
+            ViewBag.Bank = bankName.Name;
             return View(transaction);
         }
 
@@ -125,9 +198,27 @@ namespace FinancialPlanner.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Transaction transaction = db.Transactions.Find(id);
+
+            var accountId = transaction.AccountId;
+            var account = db.Accounts.Find(accountId);
+            decimal num1 = account.CurrentBalance;
+            decimal num2 = transaction.Amount;
+            var transactionTypeId = transaction.TransactionTypeId;
+            var transactionType = db.TransactionTypes.Find(transactionTypeId);
+            if (transactionType.Name == "Debit")
+            {
+                decimal result = num1 + num2;
+                account.CurrentBalance = result;
+            }
+            else if (transactionType.Name == "Credit")
+            {
+                decimal result = num1 - num2;
+                account.CurrentBalance = result;
+            }
+
             db.Transactions.Remove(transaction);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { accountId = transaction.AccountId});
         }
 
         protected override void Dispose(bool disposing)

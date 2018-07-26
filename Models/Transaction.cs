@@ -17,7 +17,6 @@ namespace FinancialPlanner.Models
         public bool Reconciled { get; set; }
         public decimal ReconciledAmount { get; set; }
         public int TransactionTypeId { get; set; }
-
         
         public virtual TransactionType TransactionType { get; set; }
         public virtual Account Account { get; set; }

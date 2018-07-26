@@ -19,6 +19,11 @@ namespace FinancialPlanner.Controllers
         {
             //ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Name");
             //var accounts = db.Accounts.Include(a => a.Bank).Include(a => a.Type);
+            var BankName = db.Banks.Find(bankId);
+            ViewBag.Bank = BankName.Name;
+            var houseId = BankName.HouseholdId;
+            ViewBag.HouseId = houseId;
+            ViewBag.BankId = bankId;
             return View(db.Accounts.Where(a => a.BankId == bankId).ToList());
         }
 
@@ -34,12 +39,17 @@ namespace FinancialPlanner.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.Bank = account.Bank.Name;
             return View(account);
         }
 
         // GET: Accounts/Create
         public ActionResult Create(int bankId)
         {
+            var BankName = db.Banks.Find(bankId);
+            ViewBag.Bank = BankName.Name;
+            ViewBag.HouseId = BankName.HouseholdId;
+            ViewBag.BankId = bankId;
             ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Type");
             return View();
         }
@@ -61,6 +71,7 @@ namespace FinancialPlanner.Controllers
                 return RedirectToAction("Index", new { bankId});
             }
 
+            ViewBag.Bank = account.Bank.Name;
             ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
             ViewBag.TypeId = new SelectList(db.AccountTypes, "Id", "Type", account.AccountTypeId);
             return View(account);
@@ -78,8 +89,8 @@ namespace FinancialPlanner.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.BankId = new SelectList(db.Banks, "Id", "Name", account.BankId);
-            ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Type");
+            ViewBag.Bank = account.Bank.Name;
+            ViewBag.AccountTypeId = new SelectList(db.AccountTypes, "Id", "Type", account.AccountTypeId);
             return View(account);
         }
 
@@ -115,6 +126,7 @@ namespace FinancialPlanner.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.Bank = account.Bank.Name;
             return View(account);
         }
 
@@ -126,7 +138,7 @@ namespace FinancialPlanner.Controllers
             Account account = db.Accounts.Find(id);
             db.Accounts.Remove(account);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { bankId = account.BankId });
         }
 
         protected override void Dispose(bool disposing)

@@ -60,6 +60,12 @@ namespace FinancialPlanner.Controllers
 
                 db.Budgets.Add(budget);
                 db.SaveChanges();
+
+                //var householdId = budget.HouseholdId;
+                //var household = db.Households.Find(householdId);
+                //var Banks = household.Banks.ToList();
+                //var 
+
                 return RedirectToAction("Index", new { houseId = budget.HouseholdId});
             }
 

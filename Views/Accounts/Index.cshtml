@@ -8,8 +8,9 @@
             <div class="card">
                 <div class="header">
                     <h2>
-                        My Accounts
+                        My @ViewBag.Bank Accounts
                     </h2>
+                    <small>@Html.ActionLink("Add Account", "Create", "Accounts", new { bankId = ViewBag.BankId }, null)</small>
                 </div>
                 <div class="body table-responsive">
                     <table class="table table-striped">
@@ -43,6 +44,9 @@
             </div>
         </div>
     </div>
+</div>
+<div class="form-actions no-color">
+    @Html.ActionLink("Back to My Banks", "MyBanks", "Banks", new { houseId = ViewBag.HouseId }, null)
 </div>
 
 
