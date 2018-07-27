@@ -19,6 +19,7 @@ namespace FinancialPlanner.Controllers
         public ActionResult Index(int houseId)
         {
             //var budgets = db.Budgets.Include(b => b.Household);
+            ViewBag.HouseId = houseId;
             return View(db.Budgets.Where(b => b.HouseholdId == houseId).ToList());
         }
 
@@ -38,8 +39,9 @@ namespace FinancialPlanner.Controllers
         }
 
         // GET: Budgets/Create
-        public ActionResult Create()
+        public ActionResult Create(int houseId)
         {
+            ViewBag.HouseId = houseId;
             ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name");
             return View();
         }
@@ -60,11 +62,7 @@ namespace FinancialPlanner.Controllers
 
                 db.Budgets.Add(budget);
                 db.SaveChanges();
-
-                //var householdId = budget.HouseholdId;
-                //var household = db.Households.Find(householdId);
-                //var Banks = household.Banks.ToList();
-                //var 
+                
 
                 return RedirectToAction("Index", new { houseId = budget.HouseholdId});
             }
@@ -100,7 +98,7 @@ namespace FinancialPlanner.Controllers
             {
                 db.Entry(budget).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { houseId = budget.HouseholdId });
             }
             ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", budget.HouseholdId);
             return View(budget);
@@ -127,9 +125,12 @@ namespace FinancialPlanner.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Budget budget = db.Budgets.Find(id);
-            db.Budgets.Remove(budget);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if(budget.Transactions.Count() == 0)
+            {
+                db.Budgets.Remove(budget);
+                db.SaveChanges();
+            }
+            return RedirectToAction("Index", new { houseId = budget.HouseholdId });
         }
 
         protected override void Dispose(bool disposing)

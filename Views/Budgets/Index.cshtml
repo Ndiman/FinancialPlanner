@@ -1,6 +1,56 @@
 ﻿@model IEnumerable<FinancialPlanner.Models.Budget>
 
-@{
+
+<div class="container-fluid">
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        My Budgets
+                    </h2>
+                    <small>@Html.ActionLink("Add Budget", "Create", new { houseId = ViewBag.HouseId })</small>
+                </div>
+                <div class="body table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Spending Target</th>
+                                <th>Current Balance</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var account in Model)
+                            {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => account.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => account.Description)</td>
+                                <td>@Html.DisplayFor(modelItem => account.SpendingTarget)</td>
+                                <td>@Html.DisplayFor(modelItem => account.CurrentBalance)</td>
+                                <td>
+                                    @Html.ActionLink("Edit", "Edit", new { id = account.Id }) |
+                                    @Html.ActionLink("Details", "Details", new { id = account.Id })
+                                    @if (account.Transactions.Count() == 0)
+                                    {
+                                       <span>|</span> @Html.ActionLink("Delete", "Delete", new { id = account.Id })
+                                    }
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@*@{
     ViewBag.Title = "Index";
 }
 
@@ -48,4 +98,4 @@
     </tr>
 }
 
-</table>
+</table>*@
