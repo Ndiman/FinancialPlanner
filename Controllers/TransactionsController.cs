@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using FinancialPlanner.Helpers;
 using FinancialPlanner.Models;
 using Microsoft.AspNet.Identity;
 
@@ -65,7 +66,7 @@ namespace FinancialPlanner.Controllers
             ViewBag.BankId = bankId;
             ViewBag.AccountId = accountId;
 
-            ViewBag.MyBudgets = new SelectList(myBudgets, "Id", "Name");
+            ViewBag.BudgetId = new SelectList(myBudgets, "Id", "Name");
             ViewBag.TransactionTypeId = new SelectList(db.TransactionTypes, "Id", "Name");
             return View();
         }
@@ -75,7 +76,7 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,TransactionTypeId")] Transaction transaction)
+        public ActionResult Create([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,TransactionTypeId,BudgetId")] Transaction transaction)
         {
             var accountId = transaction.AccountId;
             var account = db.Accounts.Find(accountId);
@@ -103,8 +104,16 @@ namespace FinancialPlanner.Controllers
                     decimal result = num1 + num2;
                     account.CurrentBalance = result;
                 }
-                db.SaveChanges();
 
+                if(transaction.BudgetId != null)
+                {
+                    var budgetId = transaction.BudgetId;
+                    var budget = db.Budgets.Find(budgetId);
+                    decimal result = budget.CurrentBalance + transaction.Amount;
+                    budget.CurrentBalance = result;
+                }
+
+                db.SaveChanges();
                 return RedirectToAction("Index", new { accountId = transaction.AccountId});
             }
 
@@ -134,7 +143,14 @@ namespace FinancialPlanner.Controllers
             var user = db.Users.Find(userId);
             var myHouse = user.HouseholdId;
             var myBudgets = db.Budgets.Where(b => b.HouseholdId == myHouse).ToList();
-            ViewBag.MyBudgets = new SelectList(myBudgets, "Id", "Name", transaction.Memo);
+            if(transaction.BudgetId != null)
+            {
+                ViewBag.BudgetId = new SelectList(myBudgets, "Id", "Name", transaction.BudgetId);
+            }
+            else
+            {
+                ViewBag.BudgetId = new SelectList(myBudgets, "Id", "Name");
+            }
             ViewBag.TransactionTypeId = new SelectList(db.TransactionTypes, "Id", "Name", transaction.TransactionTypeId);
             return View(transaction);
         }
@@ -144,28 +160,84 @@ namespace FinancialPlanner.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,Updated,Reconciled,ReconciledAmount,TransactionTypeId")] Transaction transaction)
+        public ActionResult Edit([Bind(Include = "Id,AccountId,Amount,Title,Memo,Created,Updated,Reconciled,ReconciledAmount,TransactionTypeId,BudgetId")] Transaction transaction)
         {
-            var transactionId = db.Transactions.AsNoTracking().FirstOrDefault(t => t.Id == transaction.Id);
-            var oldTransaction = db.Transactions.Find(transactionId);
+            var oldTransaction = db.Transactions.AsNoTracking().FirstOrDefault(t => t.Id == transaction.Id);
+            //var oldTransaction = db.Transactions.Find(transactionId);
             var oldAmount = oldTransaction.Amount;
+            var oldBudgetId = oldTransaction.BudgetId;
 
             if (ModelState.IsValid)
             {
-                //transaction.Updated = DateTimeOffset.Now;
-                //if(transaction.ReconciledAmount > 0)
-                //{
-                //    transaction.Reconciled = true;
-                //}
-                //if(oldAmount != transaction.Amount)
-                //{
-                //    if(oldAmount > transaction.Amount)
-                //    {
-
-                //    }
-                //}
+                transaction.Updated = DateTimeOffset.Now;
 
                 db.Entry(transaction).State = EntityState.Modified;
+                db.SaveChanges();
+
+                var newAmount = transaction.Amount;
+                var typeId = transaction.TransactionTypeId;
+                var name = db.TransactionTypes.Find(typeId).Name;
+                var accountId = transaction.AccountId;
+                var account = db.Accounts.Find(accountId);
+                if (transaction.ReconciledAmount > 0)
+                {
+                    transaction.Reconciled = true;
+                }
+                if (oldAmount != newAmount)
+                {
+                    if (oldAmount > newAmount)
+                    {
+                        var num = oldAmount - newAmount;
+
+                        if (name == "Debit")
+                        {
+                            decimal result = account.CurrentBalance + num;
+                            account.CurrentBalance = result;
+                        }
+                        else if(name == "Credit")
+                        {
+                            decimal result = account.CurrentBalance - num;
+                            account.CurrentBalance = result;
+                        }
+                    }
+                    else if(newAmount > oldAmount)
+                    {
+                        var num = newAmount - oldAmount;
+
+                        if(name == "Debit")
+                        {
+                            decimal result = account.CurrentBalance - num;
+                            account.CurrentBalance = result;
+                        }
+                        else if(name == "Credit")
+                        {
+                            decimal result = account.CurrentBalance + num;
+                            account.CurrentBalance = result;
+                        }
+                    }
+                }
+
+                if(transaction.BudgetId != null && (oldBudgetId == transaction.BudgetId))
+                {
+                    var budgetId = transaction.BudgetId;
+                    var budget = db.Budgets.Find(budgetId);
+                    decimal result = budget.CurrentBalance + transaction.Amount - oldAmount;
+                    budget.CurrentBalance = result;
+                }
+                else if(transaction.BudgetId != null && (oldBudgetId != transaction.BudgetId))
+                {
+                    var budgetId = transaction.BudgetId;
+                    var budget = db.Budgets.Find(budgetId);
+                    if(oldBudgetId != null)
+                    {
+                        var oldBudget = db.Budgets.Find(oldBudgetId);
+                        decimal result1 = oldBudget.CurrentBalance - oldAmount;
+                        oldBudget.CurrentBalance = result1;
+                    }
+                    decimal result2 = budget.CurrentBalance + transaction.Amount;
+                    budget.CurrentBalance = result2;
+                }
+
                 db.SaveChanges();
                 return RedirectToAction("Index", new { accountId = transaction.AccountId});
             }
@@ -214,6 +286,14 @@ namespace FinancialPlanner.Controllers
             {
                 decimal result = num1 - num2;
                 account.CurrentBalance = result;
+            }
+
+            if(transaction.BudgetId != null)
+            {
+                var budgetId = transaction.BudgetId;
+                var budget = db.Budgets.Find(budgetId);
+                decimal result = budget.CurrentBalance - transaction.Amount;
+                budget.CurrentBalance = result;
             }
 
             db.Transactions.Remove(transaction);
