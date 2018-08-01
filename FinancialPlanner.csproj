@@ -223,6 +223,7 @@
     <Compile Include="Controllers\HouseholdsController.cs" />
     <Compile Include="Controllers\InvitationsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
+    <Compile Include="Controllers\SweetController.cs" />
     <Compile Include="Controllers\TransactionsController.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Extension Methods\InvitationExtension.cs" />
@@ -259,6 +260,10 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\sweetalert\bootstrap-sweetalert.png" />
+    <Content Include="Content\sweetalert\docs.css" />
+    <Content Include="Content\sweetalert\sweet-alert.css" />
+    <Content Include="Content\sweetalert\thumbs-up.jpg" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -270,6 +275,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="private.config" />
+    <Content Include="Content\sweetalert\sweet-alert.less" />
+    <Content Include="Content\sweetalert\sweet-alert-combine.less" />
+    <Content Include="Content\sweetalert\sweet-alert-animations.less" />
+    <Content Include="Content\bootstrap\variables.less" />
+    <Content Include="Content\bootstrap\mixins.less" />
     <None Include="Properties\PublishProfiles\NDIFinancialPlanner - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
@@ -355,6 +365,7 @@
     <Content Include="Template\images\dandelion3.jpg" />
     <Content Include="Template\images\dandelion4.jpg" />
     <Content Include="Template\images\default.png" />
+    <Content Include="Template\images\favicon.ico" />
     <Content Include="Template\images\image-gallery\1.jpg" />
     <Content Include="Template\images\image-gallery\10.jpg" />
     <Content Include="Template\images\image-gallery\11.jpg" />
@@ -3947,6 +3958,7 @@
     <Content Include="Views\Households\MyBudgetItems.cshtml" />
     <Content Include="Views\Banks\MyBanks.cshtml" />
     <Content Include="Views\Invitations\SearchGuests.cshtml" />
+    <Content Include="Views\Sweet\Alert.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

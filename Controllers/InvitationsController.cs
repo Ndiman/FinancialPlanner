@@ -39,6 +39,7 @@ namespace FinancialPlanner.Controllers
             return View(invitation);
         }
 
+        [Authorize(Roles = "HOH")]
         // GET: Invitations/Create
         public ActionResult Create(int houseId)
         {
@@ -124,6 +125,7 @@ namespace FinancialPlanner.Controllers
             return View(users);
         }
 
+        [Authorize(Roles = "HOH")]
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         public async Task<ActionResult> InviteUser([Bind(Include = "HouseholdId,Email,LifeSpan")] Invitation invitation, int houseId, string Email)
@@ -157,6 +159,9 @@ namespace FinancialPlanner.Controllers
 
                 var userId = User.Identity.GetUserId();
                 var user = db.Users.Find(userId);
+
+                TempData["sweetMsg"] = "An invitation has been sent";
+
                 return RedirectToAction("MyDashboard", "Dashboard", new { houseId = user.HouseholdId});
             }
 

@@ -30,11 +30,37 @@ namespace FinancialPlanner.Controllers
                 return View();
         }
 
+        [Authorize(Roles = "HOH, Member")]
         public ActionResult MyDashboard(int houseId)
         {
-            var myDashboardData = new MyDashboardVM();
+            var userId = User.Identity.GetUserId();
+            var user = db.Users.Find(userId);
 
-            return View();
+            var myDashboardData = new MyDashboardVM();
+            var myBudgets = db.Budgets.Where(t => t.HouseholdId == user.HouseholdId);
+            var myBudgetsId = db.Budgets.Where(t => t.HouseholdId == user.HouseholdId).FirstOrDefault();
+            var myBudgetTransactions = db.Transactions.Where(t => t.BudgetId == myBudgetsId.Id);
+            //var banks = db.Banks.Where(b => b.HouseholdId == user.HouseholdId).ToArray();
+            //var accounts = db.Accounts.SelectMany(a => a.BankId == banks.)
+
+            //Budget info
+            myDashboardData.MyBudgets = myBudgets.OrderByDescending(b => b.SpendingTarget).ToList();
+            myDashboardData.BudgetCnt = myBudgets.Count();
+
+            myDashboardData.BankCnt = db.Banks.Where(b => b.HouseholdId == user.HouseholdId).Count();
+
+            //myDashboardData.BankAccountCnt = 
+            //var myAccountId = "";
+            //for (var loop = 1; loop <= myDashboardData.BankCnt; loop++)
+            //{
+                
+            //}
+
+            //Transaction info
+            //var myBankId = db.Banks.Where()
+            //var myTransactions = db.Transactions.Where(t => t.AccountId)
+
+            return View(myDashboardData);
         }
 
     }

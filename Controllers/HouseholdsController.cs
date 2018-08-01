@@ -19,42 +19,44 @@ namespace FinancialPlanner.Controllers
         private UserRolesHelper roleHelper = new UserRolesHelper();
 
         // GET: Households
-        public ActionResult Index()
-        {
-            return View(db.Households.ToList());
-        }
+        //public ActionResult Index()
+        //{
+        //    return View(db.Households.ToList());
+        //}
 
-        public ActionResult Dashboard(int houseId)
-        {
-            return View();
-        }
+        //public ActionResult Dashboard(int houseId)
+        //{
+        //    return View();
+        //}
 
+        [Authorize(Roles = "HOH, Member")]
         public ActionResult ViewMembers(int houseId)
         {
             ViewBag.HouseId = houseId;
             return View(db.Users.Where(b => b.HouseholdId == houseId).ToList());
         }
 
-        public ActionResult MyBudgets(int houseId)
-        {
-            return View(db.Budgets.Where(b => b.HouseholdId == houseId).ToList());
-        }
+        //public ActionResult MyBudgets(int houseId)
+        //{
+        //    return View(db.Budgets.Where(b => b.HouseholdId == houseId).ToList());
+        //}
 
-        public ActionResult MyAccounts(int bankId)
-        {
-            return View(db.Accounts.Where(b => b.BankId == bankId).ToList());
-        }
+        //public ActionResult MyAccounts(int bankId)
+        //{
+        //    return View(db.Accounts.Where(b => b.BankId == bankId).ToList());
+        //}
 
-        public ActionResult MyTransactions(int accountId)
-        {
-            return View(db.Transactions.Where(b => b.AccountId == accountId).ToList());
-        }
+        //public ActionResult MyTransactions(int accountId)
+        //{
+        //    return View(db.Transactions.Where(b => b.AccountId == accountId).ToList());
+        //}
 
-        public ActionResult MyBudgetItems(int budgetId)
-        {
-            return View(db.BudgetItems.Where(b => b.BudgetId == budgetId).ToList());
-        }
+        //public ActionResult MyBudgetItems(int budgetId)
+        //{
+        //    return View(db.BudgetItems.Where(b => b.BudgetId == budgetId).ToList());
+        //}
 
+        [Authorize(Roles = "HOH, Member")]
         // GET: Households/Details/5
         public ActionResult Details(int? id)
         {
@@ -106,6 +108,7 @@ namespace FinancialPlanner.Controllers
             return View(household);
         }
 
+        [Authorize(Roles = "HOH")]
         // GET: Households/Edit/5
         public ActionResult Edit(int? id)
         {
@@ -137,7 +140,7 @@ namespace FinancialPlanner.Controllers
             return View(household);
         }
 
-        [Authorize]
+        [Authorize(Roles = "HOH, Member")]
         public ActionResult Leave(int? houseId)
         {
             var userId = User.Identity.GetUserId();
@@ -180,7 +183,7 @@ namespace FinancialPlanner.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [Authorize]
+        [Authorize(Roles = "HOH")]
         //GET
         public ActionResult newHOH(int? houseId)
         {

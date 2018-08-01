@@ -1,7 +1,116 @@
-﻿
-@{
-    ViewBag.Title = "MyDashboard";
+﻿@using Microsoft.AspNet.Identity;
+@using FinancialPlanner.Models;
+@model FinancialPlanner.View_Models.MyDashboardVM
+
+@{ 
+    var db = new ApplicationDbContext();
+    var userId = User.Identity.GetUserId();
+    var user = db.Users.Find(userId);
 }
 
-<h2>My Dashboard</h2>
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-teal">
+            <div class="icon">
+                <i class="material-icons">shopping_cart</i>
+            </div>
+            <div class="content">
+                <div class="text"><a href="@Url.Action("Index", "Budgets", new { houseId = user.HouseholdId})" style="color:white">BUDGETS</a></div>
+                <div class="number count-to" data-from="0" data-to="@Model.BudgetCnt" data-speed="1000" data-fresh-interval="20">@Model.BudgetCnt</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-blue-grey">
+            <div class="icon">
+                <i class="material-icons">account_balance</i>
+            </div>
+            <div class="content">
+                <div class="text"><a href="@Url.Action("MyBanks", "Banks", new { houseId = user.HouseholdId})" style="color:white">BANKS</a></div>
+                <div class="number count-to" data-from="0" data-to="@Model.BankCnt" data-speed="1000" data-fresh-interval="20">@Model.BankCnt</div>
+            </div>
+        </div>
+    </div>
+    @*<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-teal">
+            <div class="icon">
+                <i class="material-icons">shopping_cart</i>
+            </div>
+            <div class="content">
+                <div class="text"><a href="@Url.Action("Index", "Budgets", new { houseId = user.HouseholdId})" style="color:white">BUDGETS</a></div>
+                <div class="number count-to" data-from="0" data-to="@Model.BudgetCnt" data-speed="1000" data-fresh-interval="20">@Model.BudgetCnt</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box bg-teal">
+            <div class="icon">
+                <i class="material-icons">shopping_cart</i>
+            </div>
+            <div class="content">
+                <div class="text"><a href="@Url.Action("Index", "Budgets", new { houseId = user.HouseholdId})" style="color:white">BUDGETS</a></div>
+                <div class="number count-to" data-from="0" data-to="@Model.BudgetCnt" data-speed="1000" data-fresh-interval="20">@Model.BudgetCnt</div>
+            </div>
+        </div>
+    </div>*@
 
+</div>
+
+@section scripts
+{
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        var sweetMsg = '@TempData["sweetMsg"]';
+        if (sweetMsg != "") {
+            swal({
+                title: "Sent!",
+                text: sweetMsg,
+                icon: "success",
+                button: "Continue",
+            });
+        }
+    </script>
+}
+
+
+
+
+@*<div class="container-fluid">
+    <div class="row clearfix">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="card">
+                <div class="header">
+                    <h2>
+                        My Budgets
+                    </h2>
+                    <small>@Html.ActionLink("Add Budget", "Create", new { houseId = ViewBag.HouseId })</small>
+                </div>
+                <div class="body table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Spending Target</th>
+                                <th>Current Balance</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var budget in Model.MyBudgets.Take(1))
+                            {
+                                <tr>
+                                    <td>@Html.DisplayFor(modelItem => budget.Name)</td>
+                                    <td>@Html.DisplayFor(modelItem => budget.SpendingTarget)</td>
+                                    <td>@Html.DisplayFor(modelItem => budget.CurrentBalance)</td>
+                                    <td>
+                                        @Html.ActionLink("Details", "Details", new { id = budget.Id })
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>*@

@@ -10,6 +10,7 @@ using FinancialPlanner.Models;
 
 namespace FinancialPlanner.Controllers
 {
+    [Authorize(Roles = "HOH, Member")]
     public class AccountTypesController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -36,84 +37,84 @@ namespace FinancialPlanner.Controllers
         }
 
         // GET: AccountTypes/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
+        //public ActionResult Create()
+        //{
+        //    return View();
+        //}
 
-        // POST: AccountTypes/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Type,Description")] AccountType accountType)
-        {
-            if (ModelState.IsValid)
-            {
-                db.AccountTypes.Add(accountType);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
+        //// POST: AccountTypes/Create
+        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Create([Bind(Include = "Id,Type,Description")] AccountType accountType)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.AccountTypes.Add(accountType);
+        //        db.SaveChanges();
+        //        return RedirectToAction("Index");
+        //    }
 
-            return View(accountType);
-        }
+        //    return View(accountType);
+        //}
 
-        // GET: AccountTypes/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            AccountType accountType = db.AccountTypes.Find(id);
-            if (accountType == null)
-            {
-                return HttpNotFound();
-            }
-            return View(accountType);
-        }
+        //// GET: AccountTypes/Edit/5
+        //public ActionResult Edit(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+        //    AccountType accountType = db.AccountTypes.Find(id);
+        //    if (accountType == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(accountType);
+        //}
 
-        // POST: AccountTypes/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Type,Description")] AccountType accountType)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(accountType).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(accountType);
-        }
+        //// POST: AccountTypes/Edit/5
+        //// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        //// more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Edit([Bind(Include = "Id,Type,Description")] AccountType accountType)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.Entry(accountType).State = EntityState.Modified;
+        //        db.SaveChanges();
+        //        return RedirectToAction("Index");
+        //    }
+        //    return View(accountType);
+        //}
 
-        // GET: AccountTypes/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            AccountType accountType = db.AccountTypes.Find(id);
-            if (accountType == null)
-            {
-                return HttpNotFound();
-            }
-            return View(accountType);
-        }
+        //// GET: AccountTypes/Delete/5
+        //public ActionResult Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+        //    AccountType accountType = db.AccountTypes.Find(id);
+        //    if (accountType == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(accountType);
+        //}
 
-        // POST: AccountTypes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            AccountType accountType = db.AccountTypes.Find(id);
-            db.AccountTypes.Remove(accountType);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
+        //// POST: AccountTypes/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult DeleteConfirmed(int id)
+        //{
+        //    AccountType accountType = db.AccountTypes.Find(id);
+        //    db.AccountTypes.Remove(accountType);
+        //    db.SaveChanges();
+        //    return RedirectToAction("Index");
+        //}
 
         protected override void Dispose(bool disposing)
         {

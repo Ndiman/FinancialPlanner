@@ -270,50 +270,62 @@ namespace FinancialPlanner.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateUserProfile(UserProfileVM userProfile, HttpPostedFileBase file)
         {
-            var image = WebImage.GetImageFromRequest();
-
-            if(image != null)
+            if (ModelState.IsValid)
             {
-                var width = image.Width;
-                var height = image.Height;
-                if (width > height)
+                var image = WebImage.GetImageFromRequest();
+
+                if (image != null)
                 {
-                    var leftRightCrop = (width - height) / 2;
-                    image.Crop(0, leftRightCrop, 0, leftRightCrop);
-                }
-                else if (height > width)
-                {
-                    var topBottomCrop = (height - width) / 2;
-                    image.Crop(topBottomCrop, 0, topBottomCrop, 0);
+                    var width = image.Width;
+                    var height = image.Height;
+                    if (width > height)
+                    {
+                        var leftRightCrop = (width - height) / 2;
+                        image.Crop(0, leftRightCrop, 0, leftRightCrop);
+                    }
+                    else if (height > width)
+                    {
+                        var topBottomCrop = (height - width) / 2;
+                        image.Crop(topBottomCrop, 0, topBottomCrop, 0);
+                    }
+
+                    var filename = Path.GetFileName(image.FileName).Replace(' ', '_');
+                    image.Save(Path.Combine(Server.MapPath("../Avatars/"), filename));
+                    filename = Path.Combine("~/Avatars/" + filename);
+
+                    userProfile.AvatarPath = Url.Content(filename);
                 }
 
-                var filename = Path.GetFileName(image.FileName).Replace(' ', '_');
-                image.Save(Path.Combine(Server.MapPath("../Avatars/"), filename));
-                filename = Path.Combine("~/Avatars/" + filename);
+                var userId = User.Identity.GetUserId();
+                var user = db.Users.Find(userId);
 
-                userProfile.AvatarPath = Url.Content(filename);
+                user.FirstName = userProfile.FirstName;
+                user.LastName = userProfile.LastName;
+                user.DisplayName = userProfile.DisplayName;
+                user.Email = userProfile.Email;
+                user.UserName = userProfile.Email;
+                user.AvatarPath = userProfile.AvatarPath;
+
+                db.Users.Attach(user);
+                db.Entry(user).Property(x => x.FirstName).IsModified = true;
+                db.Entry(user).Property(x => x.LastName).IsModified = true;
+                db.Entry(user).Property(x => x.DisplayName).IsModified = true;
+                db.Entry(user).Property(x => x.Email).IsModified = true;
+                db.Entry(user).Property(x => x.UserName).IsModified = true;
+                db.Entry(user).Property(x => x.AvatarPath).IsModified = true;
+                db.SaveChanges();
+
+                return RedirectToAction("Index", "Home");
             }
+            else
+            {
+                var message = string.Join(" | ", ModelState.Values
+                                                .SelectMany(v => v.Errors)
+                                                .Select(e => e.ErrorMessage));
 
-            var userId = User.Identity.GetUserId();
-            var user = db.Users.Find(userId);
-
-            user.FirstName = userProfile.FirstName;
-            user.LastName = userProfile.LastName;
-            user.DisplayName = userProfile.DisplayName;
-            user.Email = userProfile.Email;
-            user.UserName = userProfile.Email;
-            user.AvatarPath = userProfile.AvatarPath;
-
-            db.Users.Attach(user);
-            db.Entry(user).Property(x => x.FirstName).IsModified = true;
-            db.Entry(user).Property(x => x.LastName).IsModified = true;
-            db.Entry(user).Property(x => x.DisplayName).IsModified = true;
-            db.Entry(user).Property(x => x.Email).IsModified = true;
-            db.Entry(user).Property(x => x.UserName).IsModified = true;
-            db.Entry(user).Property(x => x.AvatarPath).IsModified = true;
-            db.SaveChanges();
-
-            return RedirectToAction("Index", "Home");
+                ModelState.AddModelError("", message);
+                return View(userProfile);
+            }
         }
 
         //

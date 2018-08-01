@@ -10,6 +10,7 @@ using FinancialPlanner.Models;
 
 namespace FinancialPlanner.Controllers
 {
+    [Authorize(Roles = "HOH, Member")]
     public class BudgetItemsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
